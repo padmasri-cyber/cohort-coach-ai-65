@@ -53,6 +53,30 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       curriculum_days: {
         Row: {
           day: number
@@ -155,6 +179,140 @@ export type Database = {
             referencedColumns: ["candidate_id"]
           },
         ]
+      }
+      practice_answers: {
+        Row: {
+          answer: string | null
+          created_at: string
+          id: string
+          position: number
+          question: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          question: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          question?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_answers_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "practice_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practice_sessions: {
+        Row: {
+          clarity: number | null
+          communication: number | null
+          completed_at: string | null
+          confidence: number | null
+          created_at: string
+          id: string
+          overall_score: number | null
+          relevance: number | null
+          role_title: string
+          status: string
+          strengths: string[]
+          suggestions: string[]
+          summary: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clarity?: number | null
+          communication?: number | null
+          completed_at?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          relevance?: number | null
+          role_title?: string
+          status?: string
+          strengths?: string[]
+          suggestions?: string[]
+          summary?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clarity?: number | null
+          communication?: number | null
+          completed_at?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          relevance?: number | null
+          role_title?: string
+          status?: string
+          strengths?: string[]
+          suggestions?: string[]
+          summary?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          education: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          resume_name: string | null
+          resume_url: string | null
+          skills: string[]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          education?: string
+          email?: string
+          full_name?: string
+          id: string
+          phone?: string
+          resume_name?: string | null
+          resume_url?: string | null
+          skills?: string[]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          education?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          resume_name?: string | null
+          resume_url?: string | null
+          skills?: string[]
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
