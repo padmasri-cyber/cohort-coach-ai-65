@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CalendarDays, Loader2, Mic, TrendingUp, Trophy } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, CalendarDays, Loader2, MessageSquare, Mic, TrendingUp, Trophy, X } from "lucide-react";
 
 import { AiChatbox } from "@/components/ai-chatbox";
 import { AppNav } from "@/components/app-nav";
@@ -138,8 +139,6 @@ function Dashboard() {
   );
 }
 
-import { useState } from "react";
-import { MessageSquare, X } from "lucide-react";
 
 function FloatingChat() {
   const [open, setOpen] = useState(false);
