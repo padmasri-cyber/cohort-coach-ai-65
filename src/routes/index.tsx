@@ -1,116 +1,85 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
-import { BrainCircuit, Loader2 } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { BrainCircuit, Camera, LineChart, MessageSquare, Mic } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { loginCandidate } from "@/lib/interview.functions";
-import { loadCandidate, saveCandidate } from "@/lib/session-store";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AI Cohort Interview Coach — Practice your post-cohort interview" },
+      { title: "AI Interview Practice — Mock interviews with instant AI feedback" },
       {
         name: "description",
         content:
-          "Sign in with your name and email to run an adaptive mock technical interview across RAG, vector databases, agents, MCP and production AI.",
+          "Run realistic on-camera mock interviews. The AI asks questions, you answer by voice, and you get a score for communication, confidence, clarity and relevance.",
       },
-      { property: "og:title", content: "AI Cohort Interview Coach" },
+      { property: "og:title", content: "AI Interview Practice" },
       {
         property: "og:description",
-        content: "Adaptive mock technical interviews for AI engineering cohort graduates.",
+        content: "On-camera AI mock interviews with speech-to-text answers and a scored performance breakdown.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Login,
+  component: Landing,
 });
 
-function Login() {
+const FEATURES = [
+  { icon: Camera, title: "Real interview feel", body: "Camera and mic check, live video preview, one question at a time." },
+  { icon: Mic, title: "Answer with your voice", body: "Speech-to-text captures your answers exactly as you say them." },
+  { icon: LineChart, title: "Scored feedback", body: "A score out of 100 with a breakdown and concrete next steps." },
+  { icon: MessageSquare, title: "AI coach on call", body: "Ask interview tips and career questions any time in the chatbox." },
+];
+
+function Landing() {
   const navigate = useNavigate();
-  const login = useServerFn(loginCandidate);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (loadCandidate()) void navigate({ to: "/dashboard" });
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) void navigate({ to: "/dashboard", replace: true });
+    });
   }, [navigate]);
 
-  async function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const result = await login({ data: { name, email } });
-      saveCandidate({ candidateId: result.candidateId, name: result.name });
-      await navigate({ to: "/dashboard" });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not sign you in");
-      setBusy(false);
-    }
-  }
-
   return (
-    <main className="grid min-h-screen lg:grid-cols-2">
-      <section className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
-        <div className="flex items-center gap-2 text-sm font-semibold tracking-wide uppercase opacity-80">
-          <BrainCircuit className="h-5 w-5" />
-          Cohort Interview Coach
-        </div>
-        <div className="max-w-md">
-          <h1 className="font-[family-name:var(--font-display)] text-4xl leading-tight">
-            You built the systems. Now practice explaining them.
-          </h1>
-          <p className="mt-4 text-sm leading-relaxed opacity-80">
-            An adaptive interviewer that draws from your own 31-day journey — the days you
-            completed, the ones you retried, and the projects you shipped.
-          </p>
-          <ul className="mt-8 space-y-2 text-sm opacity-80">
-            <li>· Multi-turn questions grounded in the curriculum</li>
-            <li>· Follow-ups that probe vague answers</li>
-            <li>· Scored feedback with a per-topic breakdown</li>
-          </ul>
-        </div>
-        <p className="text-xs opacity-60">RAG · Vector DBs · Prompting · Agents · MCP · Deployment</p>
-      </section>
+    <div className="min-h-screen bg-background">
+      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+        <span className="flex items-center gap-2 text-sm font-semibold">
+          <BrainCircuit className="h-5 w-5 text-primary" />
+          AI Interview Practice
+        </span>
+        <Button asChild size="sm">
+          <Link to="/auth">Sign in</Link>
+        </Button>
+      </header>
 
-      <section className="flex items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl">Start your session</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            No password needed — we just match you to your cohort profile.
+      <main className="mx-auto max-w-5xl px-6 pb-24">
+        <section className="py-16 text-center sm:py-24">
+          <h1 className="font-[family-name:var(--font-display)] text-4xl leading-tight sm:text-5xl">
+            Practice the interview before it counts.
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
+            A full mock interview in your browser — camera on, questions asked out loud, answers captured by voice, and an
+            honest AI score when you're done.
           </p>
-          <form onSubmit={onSubmit} className="mt-8 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Aditi Sharma" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="aditi@example.com"
-              />
-            </div>
-            {error ? <p className="text-sm text-destructive">{error}</p> : null}
-            <Button type="submit" className="w-full" disabled={busy}>
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Continue
+          <div className="mt-8 flex justify-center gap-3">
+            <Button asChild size="lg">
+              <Link to="/auth">Create your account</Link>
             </Button>
-          </form>
-          <p className="mt-6 text-xs text-muted-foreground">
-            Try a demo profile: aditi@example.com, marcus@example.com or priya@example.com
-          </p>
-        </div>
-      </section>
-    </main>
+          </div>
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-2">
+          {FEATURES.map((f) => (
+            <div key={f.title} className="rounded-xl border border-border bg-surface p-6">
+              <f.icon className="h-5 w-5 text-primary" />
+              <h2 className="mt-3 text-base font-semibold">{f.title}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{f.body}</p>
+            </div>
+          ))}
+        </section>
+      </main>
+    </div>
   );
 }
